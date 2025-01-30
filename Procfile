@@ -1,1 +1,1 @@
-﻿web: gunicorn orders.wsgi
+﻿web: gunicorn orders.orders.wsgi --log-file -
