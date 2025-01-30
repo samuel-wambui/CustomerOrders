@@ -1,1 +1,1 @@
-﻿web: gunicorn orders.orders.wsgi
+﻿web: gunicorn orders.orders1.wsgi
