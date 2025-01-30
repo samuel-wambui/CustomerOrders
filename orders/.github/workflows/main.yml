@@ -1,0 +1,42 @@
+name: Deploy to Heroku
+
+on:
+  push:
+    branches:
+      - main  # Make sure your branch name is correct
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  # Updated version
+
+      - name: Set up Python
+        uses: actions/setup-python@v4  # Updated version
+        with:
+          python-version: '3.8'  # Use the version your project needs
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Heroku CLI
+        uses: heroku/setup-heroku@v2  # Updated method
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+
+      - name: Deploy to Heroku
+        run: |
+          heroku git:remote -a customerorders  # Set up Heroku remote
+          git push heroku main  # Push main instead of master
+
+      - name: Run migrations
+        run: |
+          heroku run python manage.py migrate --app customerorders
+
+      - name: Collect static files
+        run: |
+          heroku run python manage.py collectstatic --noinput --app customerorders
