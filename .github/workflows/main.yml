@@ -13,27 +13,30 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          node-version: '20'  # Change based on your project
+          python-version: '3.12'  # Use the appropriate Python version
 
       - name: Install Dependencies
-        run: npm install
-
-      - name: Build Project (Optional)
-        run: npm run build  # Skip if not needed
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
 
       - name: Install Heroku CLI
         run: |
           curl https://cli-assets.heroku.com/install.sh | sh
 
       - name: Authenticate with Heroku
-        run: echo ${{ secrets.HEROKU_API_KEY }} | heroku auth:token
-
-      - name: Deploy to Heroku
-        run: |
-          heroku git:remote -a your-heroku-app-name
-          git push https://heroku:$HEROKU_API_KEY@git.heroku.com/your-heroku-app-name.git HEAD:main
+        run: heroku auth:token
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
+      - name: Set Heroku Git Remote
+        run: heroku git:remote -a customerorders
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
+      - name: Deploy to Heroku
+        run: git push heroku main
