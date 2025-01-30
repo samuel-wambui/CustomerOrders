@@ -3,37 +3,33 @@ name: Deploy to Heroku
 on:
   push:
     branches:
-      - main  # Adjust if your branch name is different
+      - main  # Change if deploying from another branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          python-version: '3.8'  # Adjust if needed
+          node-version: '20'  # Adjust based on your project
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+      - name: Install Dependencies
+        run: npm install
 
-      - name: Set up Heroku CLI
-        uses: akhileshns/heroku-deploy@v3.12.12
-        with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: "customerorders"  # Replace with your actual Heroku app name
-          heroku_email: ${{ secrets.HEROKU_EMAIL }}
+      - name: Build Project (Optional)
+        run: npm run build  # Remove if your project doesn't need a build step
 
-      - name: Run database migrations
-        run: |
-          heroku run python manage.py migrate --app customerorders
+      - name: Authenticate with Heroku
+        run: heroku auth:token
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
-      - name: Collect static files
-        run: |
-          heroku run python manage.py collectstatic --noinput --app customerorders
+      - name: Deploy to Heroku
+        run: git push https://heroku:$HEROKU_API_KEY@git.heroku.com/your-heroku-app-name.git HEAD:main
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
