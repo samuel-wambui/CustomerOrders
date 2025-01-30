@@ -21,24 +21,25 @@ Before running the project, ensure you have the following installed:
 ## Installation Instructions
 
 1. **Clone the repository:**
+
     ```bash
-    git clone https://github.com/your-username/your-repository-name.git
+    git clone https://github.com/samuel-wambui/your-repository-name.git
     cd your-repository-name
     ```
 
-2. **Set up a virtual environment:**
+3. **Set up a virtual environment:**
     ```bash
     python3 -m venv venv
     source venv/bin/activate  # For Linux/Mac
     venv\Scripts\activate  # For Windows
     ```
 
-3. **Install dependencies:**
+4. **Install dependencies:**
     ```bash
     pip install -r requirements.txt
     ```
 
-4. **Configure environment variables** (for OIDC and Africa's Talking credentials):
+5. **Configure environment variables** (for OIDC and Africa's Talking credentials):
     - Create a `.env` file in the root directory and add:
       ```env
       OIDC_CLIENT_ID=your_client_id
@@ -48,12 +49,12 @@ Before running the project, ensure you have the following installed:
       AFRICAS_TALKING_SENDER_ID=your_sender_id
       ```
 
-5. **Run migrations:**
+6. **Run migrations:**
     ```bash
     python manage.py migrate
     ```
 
-6. **Start the development server:**
+7. **Start the development server:**
     ```bash
     python manage.py runserver
     ```
