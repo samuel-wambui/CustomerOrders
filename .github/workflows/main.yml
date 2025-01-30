@@ -3,7 +3,7 @@ name: Deploy to Heroku
 on:
   push:
     branches:
-      - main  # Change if deploying from another branch
+      - main  # Adjust if using a different branch
 
 jobs:
   deploy:
@@ -16,20 +16,24 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'  # Adjust based on your project
+          node-version: '20'  # Change based on your project
 
       - name: Install Dependencies
         run: npm install
 
       - name: Build Project (Optional)
-        run: npm run build  # Remove if your project doesn't need a build step
+        run: npm run build  # Skip if not needed
+
+      - name: Install Heroku CLI
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
 
       - name: Authenticate with Heroku
-        run: heroku auth:token
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: echo ${{ secrets.HEROKU_API_KEY }} | heroku auth:token
 
       - name: Deploy to Heroku
-        run: git push https://heroku:$HEROKU_API_KEY@git.heroku.com/your-heroku-app-name.git HEAD:main
+        run: |
+          heroku git:remote -a your-heroku-app-name
+          git push https://heroku:$HEROKU_API_KEY@git.heroku.com/your-heroku-app-name.git HEAD:main
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
