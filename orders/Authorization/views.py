@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist
+from jwt import PyJWTError
 from .models import User, Role
 from .utils import decode_jwt_and_get_email
 import logging
@@ -35,21 +36,13 @@ def upgrade_user_to_admin(request, email):
 # Handle JWT login
 User = get_user_model()
 
-
 def jwt_login_view(request):
     logger.info("JWT Login view accessed.")
 
-    email_response = decode_jwt_and_get_email(request)
-    if isinstance(email_response, JsonResponse):
-        logger.error("Invalid JWT token received.")
-        return email_response  
-
-    email = email_response
-    logger.debug(f"Decoded email from JWT: {email}")
-
-    User = get_user_model()
-
     try:
+        email = decode_jwt_and_get_email(request)
+        logger.debug(f"Decoded email from JWT: {email}")
+
         user, created = User.objects.get_or_create(email=email)
 
         if created:
@@ -59,7 +52,12 @@ def jwt_login_view(request):
 
         return JsonResponse({"message": f"User {email} authenticated and registered."}, status=200)
 
+    except PyJWTError as e:
+        logger.error(f"JWT error: {str(e)}")
+        return JsonResponse({"error": str(e)}, status=401)
+    
     except Exception as e:
-        logger.error(f"Error creating or updating user {email}: {str(e)}")
-        return JsonResponse({"error": f"Error creating or updating user: {str(e)}"}, status=500)
+        logger.error(f"Unexpected error during authentication: {str(e)}")
+        return JsonResponse({"error": "Internal server error"}, status=500)
+
 
