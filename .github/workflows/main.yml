@@ -37,15 +37,11 @@ jobs:
 
       - name: Create Virtual Environment
         run: |
-          cd $PROJECT_PATH  # Ensure we are inside the project directory
-          python -m venv venv  # Create the virtual environment
-          ls -R venv  # Debug: List contents of the 'venv' directory
-          if [ ! -d "venv" ]; then
-            echo "Virtual environment not created!"
-            exit 1
-          fi
+          cd $PROJECT_PATH
+          python -m venv venv
+          ls -R venv  # Debug: List virtual environment contents
           if [ ! -f "venv/bin/activate" ]; then
-            echo "Activate script not found in venv!"
+            echo "Error: Virtual environment not created!"
             exit 1
           fi
 
@@ -55,13 +51,22 @@ jobs:
           source venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
+          pip list  # Debug: Check installed packages
+
+      - name: Set Heroku Environment Variables
+        run: |
+          if [ -z "${{ secrets.HEROKU_API_KEY }}" ]; then
+            echo "Error: HEROKU_API_KEY secret is missing!"
+            exit 1
+          fi
+          heroku config:set DATABASE_URL=${{ secrets.DATABASE_URL }} --app customerorders
 
       - name: Run Migrations and Collect Static Files
         run: |
           cd $PROJECT_PATH
           source venv/bin/activate
           python manage.py migrate --noinput
-          python manage.py collectstatic --noinput
+          python manage.py collectstatic --noinput --clear
 
       - name: Install Heroku CLI
         run: curl https://cli-assets.heroku.com/install.sh | sh
@@ -69,7 +74,7 @@ jobs:
       - name: Authenticate with Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: heroku auth:token
+        run: echo $HEROKU_API_KEY | heroku auth:token
 
       - name: Deploy to Heroku
         env:
