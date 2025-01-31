@@ -24,11 +24,21 @@ jobs:
           pip install -r requirements.txt
 
       - name: Debug - List Files
-        run: ls -R
+        run: ls -R  # Check the directory structure
+
+      - name: Find and Set Working Directory
+        run: |
+          if [ -f "orders/manage.py" ]; then
+            echo "Django project found in orders/"
+            echo "PROJECT_PATH=orders" >> $GITHUB_ENV
+          else
+            echo "Error: manage.py not found!"
+            exit 1
+          fi
 
       - name: Run Migrations and Collect Static Files
         run: |
-          cd customerOrders/orders  # Navigate to Django project directory
+          cd $PROJECT_PATH  # Change to correct directory
           python manage.py migrate --noinput
           python manage.py collectstatic --noinput
 
