@@ -16,15 +16,15 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.10'  # Adjust if needed
 
       - name: Install Dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements.txt  # Installs all the dependencies listed in requirements.txt
 
       - name: Debug - List Files
-        run: ls -R  # Check the directory structure
+        run: ls -R  # Check the directory structure to ensure the correct file paths
 
       - name: Find and Set Working Directory
         run: |
@@ -37,21 +37,21 @@ jobs:
 
       - name: Run Migrations and Collect Static Files
         run: |
-          cd $PROJECT_PATH
-          python manage.py migrate --noinput
-          python manage.py collectstatic --noinput
+          cd $PROJECT_PATH  # Navigate to the correct project directory
+          python manage.py migrate --noinput  # Run database migrations
+          python manage.py collectstatic --noinput  # Collect static files
 
       - name: Install Heroku CLI
-        run: curl https://cli-assets.heroku.com/install.sh | sh
+        run: curl https://cli-assets.heroku.com/install.sh | sh  # Install Heroku CLI
 
       - name: Authenticate with Heroku
         env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: heroku auth:token
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}  # Ensure your Heroku API key is set in secrets
+        run: heroku auth:token  # Authenticate with Heroku
 
       - name: Deploy to Heroku
         env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}  # Ensure your Heroku API key is set in secrets
         run: |
-          heroku git:remote -a customerorders
-          git push heroku main
+          heroku git:remote -a customerorders  # Set the Heroku remote app
+          git push heroku main  # Push the code to the Heroku app
