@@ -62,23 +62,30 @@ jobs:
         run: |
           echo $HEROKU_API_KEY | heroku auth:token
 
-      - name: Ensure Database Exists (Optional)
+      - name: Ensure Database Exists
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
-          heroku addons:info heroku-postgresql --app customerorders || \
-          heroku addons:create heroku-postgresql:hobby-dev --app customerorders
+          HEROKU_DB_ADDON=$(heroku addons | grep heroku-postgresql || true)
+          if [ -z "$HEROKU_DB_ADDON" ]; then
+            heroku addons:create heroku-postgresql:hobby-dev --app customerorders
+          else
+            echo "Database already exists"
+          fi
 
       - name: Run Migrations and Collect Static Files
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
-          heroku run python manage.py migrate --noinput --app customerorders || echo "Skipping migrations"
-          heroku run python manage.py collectstatic --noinput --clear --app customerorders || echo "Skipping collectstatic"
+          heroku run --app customerorders python manage.py migrate --noinput || echo "Skipping migrations"
+          heroku run --app customerorders python manage.py collectstatic --noinput --clear || echo "Skipping collectstatic"
 
       - name: Deploy to Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
+          git remote add heroku https://git.heroku.com/customerorders.git || true
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
           heroku git:remote -a customerorders
-          git push heroku main
+          git push heroku main --force
