@@ -36,6 +36,7 @@ jobs:
 
       - name: Verify Python and Installed Libraries
         run: |
+          source venv/bin/activate  # Activate virtual environment
           python --version
           pip freeze  # List all installed packages
 
