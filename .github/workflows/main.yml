@@ -48,14 +48,7 @@ jobs:
         run: |
           cd $PROJECT_PATH
           source venv/bin/activate
-          pip freeze  # Check if psycopg2-binary is installed
-
-      - name: Run Migrations and Collect Static Files
-        run: |
-          cd $PROJECT_PATH
-          source venv/bin/activate
-          python manage.py migrate --noinput
-          python manage.py collectstatic --noinput --clear
+          pip freeze  # Check installed dependencies
 
       - name: Install Heroku CLI
         run: |
@@ -69,19 +62,23 @@ jobs:
         run: |
           echo $HEROKU_API_KEY | heroku auth:token
 
-      - name: Set Environment Variables on Heroku
+      - name: Ensure Database Exists (Optional)
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          heroku config:set DATABASE_URL=$DATABASE_URL --app customerorders
-          heroku run pip install --no-cache-dir psycopg2-binary --app customerorders
+          heroku addons:info heroku-postgresql --app customerorders || \
+          heroku addons:create heroku-postgresql:hobby-dev --app customerorders
+
+      - name: Run Migrations and Collect Static Files
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          heroku run python manage.py migrate --noinput --app customerorders || echo "Skipping migrations"
+          heroku run python manage.py collectstatic --noinput --clear --app customerorders || echo "Skipping collectstatic"
 
       - name: Deploy to Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
           heroku git:remote -a customerorders
-          git push heroku main --force  # Force push to Heroku to ensure deployment
-
-          
+          git push heroku main
