@@ -13,7 +13,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Ensure full clone to avoid shallow push issues
+          fetch-depth: 0  # Ensures full clone to avoid shallow push issues
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -39,9 +39,9 @@ jobs:
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
 
-      - name: **Fix Shallow Clone Issue**
+      - name: Fix Shallow Clone Issue
         run: |
-          git fetch --unshallow  # Convert shallow clone to full clone
+          git fetch --unshallow  # Converts shallow clone to full clone
 
       - name: Deploy to Heroku
         run: |
