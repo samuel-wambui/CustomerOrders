@@ -3,7 +3,7 @@ name: Deploy to Heroku
 on:
   push:
     branches:
-      - main  # Change if using a different branch
+      - main  # Change this if using a different branch
 
 jobs:
   deploy:
@@ -84,8 +84,11 @@ jobs:
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
-          git remote add heroku https://git.heroku.com/customerorders.git || true
+          heroku auth:token
+          heroku git:remote -a customerorders
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
-          heroku git:remote -a customerorders
+
+          # Use API Key for Authentication in Git Remote
+          git remote add heroku https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/customerorders.git || true
           git push heroku main --force
