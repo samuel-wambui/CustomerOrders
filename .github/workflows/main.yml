@@ -16,7 +16,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'  # Adjust if needed
+          python-version: '3.10'
 
       - name: Install Dependencies
         run: |
@@ -29,7 +29,6 @@ jobs:
       - name: Find and Set Working Directory
         run: |
           if [ -f "orders/manage.py" ]; then
-            echo "Django project found in orders/"
             echo "PROJECT_PATH=orders" >> $GITHUB_ENV
           else
             echo "Error: manage.py not found!"
@@ -38,22 +37,21 @@ jobs:
 
       - name: Run Migrations and Collect Static Files
         run: |
-          cd $PROJECT_PATH  # Change to correct directory
+          cd $PROJECT_PATH
           python manage.py migrate --noinput
           python manage.py collectstatic --noinput
 
       - name: Install Heroku CLI
-        run: |
-          curl https://cli-assets.heroku.com/install.sh | sh
+        run: curl https://cli-assets.heroku.com/install.sh | sh
 
       - name: Authenticate with Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: echo $HEROKU_API_KEY | heroku auth:token
+        run: heroku auth:token
 
       - name: Deploy to Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
           heroku git:remote -a customerorders
-          git push https://heroku:$HEROKU_API_KEY@git.heroku.com/customerorders.git HEAD:main
+          git push heroku main

@@ -55,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'mozilla_django_oidc.middleware.SessionRefresh',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'orders1.urls'
@@ -88,14 +89,36 @@ WSGI_APPLICATION = 'orders1.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'screeningproject_db',
+#         'USER': 'root',
+#         'PASSWORD': 'root',
+#         'HOST': '127.0.0.1',  # Change from 'localhost' to '127.0.0.1'
+#         'PORT': '3306',
+#     }
+# }
+# DATABASE_URL=mysql://root:root@127.0.0.1/screeningproject_db
+
+import os
+import dj_database_url 
+
+DATABASES = {
+    'default': dj_database_url.config(default=os.getenv('CLEARDB_DATABASE_URL'))
+}
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'screeningproject_db',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': '127.0.0.1',  # Change from 'localhost' to '127.0.0.1'
-        'PORT': '3306',
+        'NAME': os.getenv('DB_NAME', 'screeningproject_db'),
+        'USER': os.getenv('DB_USER', 'root'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'root'),
+        'HOST': os.getenv('DB_HOST', '127.0.0.1'),  # Use 'localhost' if this does not work
+        'PORT': os.getenv('DB_PORT', '3306'),
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
     }
 }
 
