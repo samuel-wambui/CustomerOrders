@@ -31,13 +31,14 @@ jobs:
         run: |
           python -m venv venv  # Create the virtual environment
           ls -R venv  # Debug: List contents of the 'venv' directory
-          if [ ! -f "venv/bin/activate" ]; then
-            echo "Virtual environment not created correctly"
+          if [ ! -d "venv" ]; then
+            echo "Virtual environment not created!"
             exit 1
           fi
-          source venv/bin/activate  # Activate virtual environment
-          pip install --upgrade pip
-          pip install -r requirements.txt  # Install dependencies
+          if [ ! -f "venv/bin/activate" ]; then
+            echo "Activate script not found in venv!"
+            exit 1
+          fi
 
       - name: Verify Python and Installed Libraries
         run: |
