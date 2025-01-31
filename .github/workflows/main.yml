@@ -13,16 +13,20 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          node-version: '20'  # Change based on your project
+          python-version: '3.10'  # Adjust based on your project
 
       - name: Install Dependencies
-        run: npm install
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Build Project (Optional)
-        run: npm run build  # Skip if not needed
+      - name: Run Migrations and Collect Static Files
+        run: |
+          python manage.py migrate --noinput
+          python manage.py collectstatic --noinput
 
       - name: Install Heroku CLI
         run: |
