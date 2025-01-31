@@ -13,7 +13,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Ensures full clone, avoids shallow clone issues
+          fetch-depth: 0  # Ensures full clone from the start
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -41,7 +41,7 @@ jobs:
 
       - name: Ensure Full Git History
         run: |
-          if git rev-parse --is-shallow-repository; then
+          if [ -f .git/shallow ]; then
             echo "Repository is shallow. Running git fetch --unshallow..."
             git fetch --unshallow
           else
