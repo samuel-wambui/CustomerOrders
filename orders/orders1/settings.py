@@ -56,7 +56,7 @@ MIDDLEWARE = [
     'mozilla_django_oidc.middleware.SessionRefresh',
 ]
 
-ROOT_URLCONF = 'orders.urls'
+ROOT_URLCONF = 'orders1.urls'
 
 TEMPLATES = [
     {
@@ -81,7 +81,7 @@ REST_FRAMEWORK = {
 }
 
 
-WSGI_APPLICATION = 'orders.wsgi.application'
+WSGI_APPLICATION = 'orders1.wsgi.application'
 
 
 # Database
@@ -150,7 +150,7 @@ OIDC_RP_SIGN_ALGO = 'RS256'
 
 
 LOGIN_URL = '/oidc/authenticate/'
-LOGIN_REDIRECT_URL = 'http://localhost:8000/api/orders/'
+LOGIN_REDIRECT_URL = 'http://localhost:8000/api/orders1/'
 LOGOUT_REDIRECT_URL = '/'
 
 AUTHENTICATION_BACKENDS = [
