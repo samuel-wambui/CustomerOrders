@@ -24,9 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-i8j**3e4_c_rb4w2s^ljc=o8egsc^k$pblxagb9vxyz^_l1q#z'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['yourdomain.com', 'subdomain.yourdomain.com', '127.0.0.1', 'localhost']
+
 
 
 # Application definition
@@ -93,10 +94,11 @@ DATABASES = {
         'NAME': 'screeningproject_db',
         'USER': 'root',
         'PASSWORD': 'root',
-        'HOST': 'localhost',
+        'HOST': '127.0.0.1',  # Change from 'localhost' to '127.0.0.1'
         'PORT': '3306',
     }
 }
+
 
 
 # Password validation
