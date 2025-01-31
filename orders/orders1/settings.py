@@ -84,6 +84,8 @@ REST_FRAMEWORK = {
 
 
 WSGI_APPLICATION = 'orders1.wsgi.application'
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'orders1.settings')
+
 
 
 # Database
