@@ -103,16 +103,16 @@ WSGI_APPLICATION = 'orders1.wsgi.application'
 
 import os
 import dj_database_url
+from decouple import config
 
-DATABASE_URL = os.getenv('DATABASE_URL')
+# Load the DATABASE_URL from .env file
+DATABASE_URL = config('DATABASE_URL')
 
+# Parse the DATABASE_URL using dj_database_url
 DATABASES = {
-    'default': dj_database_url.config(
-        default=DATABASE_URL,
-        conn_max_age=600,
-        ssl_require=True  # Enforce SSL for Heroku
-    )
+    'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600, ssl_require=True)
 }
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
