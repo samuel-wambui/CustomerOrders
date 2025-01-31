@@ -26,7 +26,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Find and Set Working Directory
+      - name: Find and Set Project Path
         run: |
           if [ -f "orders/manage.py" ]; then
             echo "PROJECT_PATH=orders" >> $GITHUB_ENV
@@ -35,31 +35,13 @@ jobs:
             exit 1
           fi
 
-      - name: Create Virtual Environment
+      - name: Create Virtual Environment & Install Dependencies
         run: |
           cd $PROJECT_PATH
-          python -m venv venv
-          ls -R venv  # Debug: List virtual environment contents
-          if [ ! -f "venv/bin/activate" ]; then
-            echo "Error: Virtual environment not created!"
-            exit 1
-          fi
-
-      - name: Install Dependencies
-        run: |
-          cd $PROJECT_PATH
+          python -m venv venv  # Create virtual environment
           source venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
-          pip list  # Debug: Check installed packages
-
-      - name: Set Heroku Environment Variables
-        run: |
-          if [ -z "${{ secrets.HEROKU_API_KEY }}" ]; then
-            echo "Error: HEROKU_API_KEY secret is missing!"
-            exit 1
-          fi
-          heroku config:set DATABASE_URL=${{ secrets.DATABASE_URL }} --app customerorders
 
       - name: Run Migrations and Collect Static Files
         run: |
@@ -69,12 +51,23 @@ jobs:
           python manage.py collectstatic --noinput --clear
 
       - name: Install Heroku CLI
-        run: curl https://cli-assets.heroku.com/install.sh | sh
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
+          export PATH="/usr/local/bin:$PATH"
+          heroku --version  # Verify Heroku installation
 
       - name: Authenticate with Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: echo $HEROKU_API_KEY | heroku auth:token
+        run: |
+          echo $HEROKU_API_KEY | heroku auth:token
+
+      - name: Set Environment Variables on Heroku
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          heroku config:set DATABASE_URL=$DATABASE_URL --app customerorders
 
       - name: Deploy to Heroku
         env:
