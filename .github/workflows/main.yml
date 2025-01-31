@@ -21,14 +21,23 @@ jobs:
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
-          path: |
-            ~/.cache/pip
+          path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
 
+      - name: Find and Set Working Directory
+        run: |
+          if [ -f "orders/manage.py" ]; then
+            echo "PROJECT_PATH=orders" >> $GITHUB_ENV
+          else
+            echo "Error: manage.py not found!"
+            exit 1
+          fi
+
       - name: Create Virtual Environment
         run: |
+          cd $PROJECT_PATH  # Ensure we are inside the project directory
           python -m venv venv  # Create the virtual environment
           ls -R venv  # Debug: List contents of the 'venv' directory
           if [ ! -d "venv" ]; then
@@ -40,28 +49,17 @@ jobs:
             exit 1
           fi
 
-      - name: Verify Python and Installed Libraries
+      - name: Install Dependencies
         run: |
-          source venv/bin/activate  # Activate virtual environment
-          python --version
-          pip freeze  # List all installed packages
-
-      - name: Debug - List Files
-        run: ls -R  # Check the directory structure
-
-      - name: Find and Set Working Directory
-        run: |
-          if [ -f "orders/manage.py" ]; then
-            echo "PROJECT_PATH=orders" >> $GITHUB_ENV
-          else
-            echo "Error: manage.py not found!"
-            exit 1
-          fi
+          cd $PROJECT_PATH
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Run Migrations and Collect Static Files
         run: |
           cd $PROJECT_PATH
-          source venv/bin/activate  # Activate virtual environment
+          source venv/bin/activate
           python manage.py migrate --noinput
           python manage.py collectstatic --noinput
 
