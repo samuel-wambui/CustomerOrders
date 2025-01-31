@@ -38,23 +38,23 @@ jobs:
       - name: Create Virtual Environment & Install Dependencies
         run: |
           cd $PROJECT_PATH
-          python -m venv venv  # Create virtual environment
+          python -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
-          pip install --no-cache-dir psycopg2-binary  # Ensure psycopg2-binary is installed
+          pip install --no-cache-dir psycopg2-binary
           pip install -r requirements.txt
 
       - name: Verify Installed Packages
         run: |
           cd $PROJECT_PATH
           source venv/bin/activate
-          pip freeze  # Check installed dependencies
+          pip freeze
 
       - name: Install Heroku CLI
         run: |
           curl https://cli-assets.heroku.com/install.sh | sh
           export PATH="/usr/local/bin:$PATH"
-          heroku --version  # Verify Heroku installation
+          heroku --version
 
       - name: Authenticate with Heroku
         env:
@@ -84,11 +84,13 @@ jobs:
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
-          heroku auth:token
-          heroku git:remote -a customerorders
+          heroku git:remote -a customerorders || echo "Heroku remote already exists"
+          
+          # Ensure no duplicate remote is added
+          git remote remove heroku || true
+          git remote add heroku https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/customerorders.git
+
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
 
-          # Use API Key for Authentication in Git Remote
-          git remote add heroku https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/customerorders.git || true
           git push heroku main --force
