@@ -27,11 +27,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Create and Activate Virtual Environment
+      - name: Create Virtual Environment
         run: |
           python -m venv venv  # Create the virtual environment
           ls -R venv  # Debug: List contents of the 'venv' directory
-          source venv/bin/activate  # Activate it
+          if [ ! -f "venv/bin/activate" ]; then
+            echo "Virtual environment not created correctly"
+            exit 1
+          fi
+          source venv/bin/activate  # Activate virtual environment
           pip install --upgrade pip
           pip install -r requirements.txt  # Install dependencies
 
