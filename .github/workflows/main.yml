@@ -41,13 +41,14 @@ jobs:
           python -m venv venv  # Create virtual environment
           source venv/bin/activate
           pip install --upgrade pip
+          pip install --no-cache-dir psycopg2-binary  # Ensure psycopg2-binary is installed
           pip install -r requirements.txt
 
       - name: Verify Installed Packages
         run: |
           cd $PROJECT_PATH
           source venv/bin/activate
-          pip freeze  # Check if africastalking is installed
+          pip freeze  # Check if psycopg2-binary is installed
 
       - name: Run Migrations and Collect Static Files
         run: |
@@ -74,10 +75,11 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           heroku config:set DATABASE_URL=$DATABASE_URL --app customerorders
+          heroku run pip install --no-cache-dir psycopg2-binary --app customerorders
 
       - name: Deploy to Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
           heroku git:remote -a customerorders
-          git push heroku main
+          git push heroku main --force  # Force push to Heroku to ensure deployment
